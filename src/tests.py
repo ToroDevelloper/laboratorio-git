@@ -1,7 +1,4 @@
-import importlib
+from index import calculator
 
-
-def test_index_module_imports():
-    module = importlib.import_module("index")
-
-    assert module is not None
+def test_sum():
+    assert calculator().sum(2, 2) == 4

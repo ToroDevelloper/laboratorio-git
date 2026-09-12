@@ -22,3 +22,7 @@ jobs:
     - name: Test with pytest
       working-directory: src
       run: pytest tests.py
+    - name: Lint with Ruff
+      working-directory: src
+      run: ruff check .
+      
