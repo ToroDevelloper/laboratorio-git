@@ -40,4 +40,4 @@ jobs:
       with:
         context: .
         push: true
-        tags: ghcr.io/ToroDevelloper/laboratorio-git:latest 
+        tags: ghcr.io/torodevelloper/laboratorio-git:latest
