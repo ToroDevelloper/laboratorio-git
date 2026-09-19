@@ -130,4 +130,4 @@ jobs:
 
           push: true
 
-          tags: ghcr.io/${{ github.repository }}:latest
+          tags: ghcr.io/torodevelloper/laboratorio-git:latest
