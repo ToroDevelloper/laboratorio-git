@@ -115,3 +115,5 @@ Asegúrate de que npm test y npm run lint pasen exitosamente antes de abrir un P
 
 📄 Licencia
 Este proyecto está bajo los términos de la Licencia MIT.
+
+CosasMaranas.com. Esto tampoco es un simulacro
