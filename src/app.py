@@ -11,16 +11,24 @@ CONFIGCAT_KEY = os.environ.get("CONFIGCAT_SDK_KEY", "")
 configcat_client = None
 
 if CONFIGCAT_KEY:
-    configcat_client = configcatclient.get(
-        CONFIGCAT_KEY,
-        options=configcatclient.ConfigCatOptions(poll_interval_seconds=5),
-    )
+    try:
+        configcat_client = configcatclient.get(
+            CONFIGCAT_KEY,
+            options=configcatclient.ConfigCatOptions(
+                polling_mode=configcatclient.PollingMode.auto_poll(poll_interval_seconds=5)
+            ),
+        )
+    except Exception as e:
+        print(f"Error inicializando ConfigCat: {e}")
 
 
 def is_feature_enabled(key: str, default: bool = False) -> bool:
     if configcat_client:
-        return configcat_client.get_value(key, default)
-    # Si no hay SDK Key configurada localmente, retorna el default
+        try:
+            return configcat_client.get_value(key, default)
+        except Exception as e:
+            print(f"Error consultando toggle {key}: {e}")
+            return default
     return default
 
 
