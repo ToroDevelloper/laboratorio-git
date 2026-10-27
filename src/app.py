@@ -1,17 +1,37 @@
 import os
+import configcatclient
 from flask import Flask, jsonify, request
 from index import calculator
 
 app = Flask(__name__)
 calc = calculator()
 
+# Inicializar cliente de ConfigCat
+CONFIGCAT_KEY = os.environ.get("CONFIGCAT_SDK_KEY", "")
+configcat_client = None
+
+if CONFIGCAT_KEY:
+    configcat_client = configcatclient.get(
+        CONFIGCAT_KEY,
+        options=configcatclient.ConfigCatOptions(poll_interval_seconds=5),
+    )
+
+
+def is_feature_enabled(key: str, default: bool = False) -> bool:
+    if configcat_client:
+        return configcat_client.get_value(key, default)
+    # Si no hay SDK Key configurada localmente, retorna el default
+    return default
+
 
 @app.route("/")
 def home():
+    is_mult_on = is_feature_enabled("multiplication_enabled", False)
     return jsonify(
         {
             "name": "Laboratorio CI/CD - Calculadora API",
             "status": "running",
+            "features": {"multiplication_enabled": is_mult_on},
             "endpoints": ["/healthz", "/sum", "/resta", "/multiplicacion"],
         }
     )
@@ -19,7 +39,6 @@ def home():
 
 @app.route("/healthz")
 def health_check():
-    # Endpoint de verificación de salud para Render
     return jsonify({"status": "healthy"}), 200
 
 
@@ -39,6 +58,20 @@ def do_resta():
 
 @app.route("/multiplicacion")
 def do_multiplicacion():
+    # Evaluación del Feature Toggle
+    if not is_feature_enabled("multiplication_enabled", False):
+        return (
+            jsonify(
+                {
+                    "error": "Funcionalidad deshabilitada",
+                    "message": "La operacion de multiplicacion se encuentra apagada por Feature Flag en ConfigCat.",
+                    "feature_flag": "multiplication_enabled",
+                    "status": "disabled",
+                }
+            ),
+            403,
+        )
+
     a = int(request.args.get("a", 0))
     b = int(request.args.get("b", 0))
     return jsonify(
